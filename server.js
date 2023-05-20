@@ -24,4 +24,10 @@ io.on("connection", (socket) => {
     console.log(`Oh, I've got new task from ${socket.id}`);
     tasks.push(newTask);
   });
+
+  socket.on("removeTask", (removeTask) => {
+    console.log(`${socket.id} exactly removed task ${removeTask.name} `);
+
+    tasks.splice(tasks.indexOf(removeTask), 1);
+  });
 });
