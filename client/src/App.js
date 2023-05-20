@@ -14,6 +14,10 @@ function App() {
     });
   }, []);
 
+  const handleTaskRemove = (id) => {
+    setTasks((current) => current.filter((task) => task.id !== id));
+  };
+
   return (
     <div className="App">
       <header>
@@ -27,7 +31,13 @@ function App() {
           {tasks.map(({ name, id }) => {
             return (
               <li key={id} className="task">
-                {name} <button className="btn btn--red">Remove</button>
+                {name}{" "}
+                <button
+                  className="btn btn--red"
+                  onClick={() => handleTaskRemove(id)}
+                >
+                  Remove
+                </button>
               </li>
             );
           })}
