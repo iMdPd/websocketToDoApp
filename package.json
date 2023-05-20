@@ -1,10 +1,14 @@
 {
-  "name": "websocketToDoApp",
+  "name": "websocket-t-do-app",
   "version": "1.0.0",
   "main": "server.js",
   "author": "iMdPd",
   "license": "MIT",
+  "scripts": {
+    "start": "nodemon server.js"
+  },
   "dependencies": {
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "nodemon": "^2.0.22"
   }
 }
