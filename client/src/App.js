@@ -1,9 +1,11 @@
 import io from "socket.io-client";
+import shortid from "shortid";
 import React, { useEffect, useState } from "react";
 
 function App() {
   const [socket, setSocket] = useState();
   const [tasks, setTasks] = useState([]);
+  const [inputValue, setInputValue] = useState("");
 
   useEffect(() => {
     const socket = io("http://localhost:8000");
@@ -16,6 +18,12 @@ function App() {
 
   const handleTaskRemove = (id) => {
     setTasks((current) => current.filter((task) => task.id !== id));
+  };
+
+  const handleAddNewTask = (e) => {
+    e.preventDefault();
+    setTasks((current) => [...current, { id: shortid(), name: inputValue }]);
+    setInputValue("");
   };
 
   return (
@@ -43,13 +51,15 @@ function App() {
           })}
         </ul>
 
-        <form id="add-task-form">
+        <form id="add-task-form" onSubmit={(e) => handleAddNewTask(e)}>
           <input
             className="text-input"
             autoComplete="off"
             type="text"
             placeholder="Type your description"
             id="task-name"
+            onChange={(e) => setInputValue(e.target.value)}
+            value={inputValue}
           />
           <button className="btn" type="submit">
             Add
