@@ -3,5 +3,8 @@
   "version": "1.0.0",
   "main": "server.js",
   "author": "iMdPd",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
 }
