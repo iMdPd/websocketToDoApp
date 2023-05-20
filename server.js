@@ -19,4 +19,9 @@ io.on("connection", (socket) => {
   console.log("New client! Its id – " + socket.id);
 
   socket.emit("updateData", tasks);
+
+  socket.on("addTask", (newTask) => {
+    console.log(`Oh, I've got new task from ${socket.id}`);
+    tasks.push(newTask);
+  });
 });
