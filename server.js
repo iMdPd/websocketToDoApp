@@ -29,11 +29,12 @@ io.on("connection", (socket) => {
   socket.on("addTask", (newTask) => {
     console.log(`Oh, I've got new task from ${socket.id}`);
     tasks.push(newTask);
+    socket.broadcast.emit("addTask", newTask);
   });
 
   socket.on("removeTask", (removeTask) => {
-    console.log(`${socket.id} exactly removed task ${removeTask.name} `);
-
+    console.log(`${socket.id} exactly removed task id: ${removeTask} `);
     tasks.splice(tasks.indexOf(removeTask), 1);
+    socket.broadcast.emit("removeTask", removeTask);
   });
 });
