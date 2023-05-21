@@ -3,28 +3,51 @@ import shortid from "shortid";
 import React, { useEffect, useState } from "react";
 
 function App() {
-  const [socket, setSocket] = useState();
-  const [tasks, setTasks] = useState([]);
-  const [inputValue, setInputValue] = useState("");
+  const [socket, setSocket] = useState({});
+  const [listOfTasks, setListOfTasks] = useState([]);
+  const [taskName, setTaskName] = useState("");
+
+  const addTask = (taskId, taskName) => {
+    setListOfTasks((current) => [...current, { id: taskId, name: taskName }]);
+  };
+
+  const removeTask = (taskId) => {
+    setListOfTasks((current) => current.filter((task) => task.id !== taskId));
+  };
+
+  const handleTaskRemove = (id) => {
+    removeTask(id);
+    socket.emit("removeTask", id);
+  };
+
+  const handleAddNewTask = (e) => {
+    e.preventDefault();
+    const uniqueId = shortid();
+    addTask(uniqueId, taskName);
+    setTaskName("");
+
+    socket.emit("addTask", {
+      id: uniqueId,
+      name: taskName,
+    });
+  };
 
   useEffect(() => {
     const socket = io("http://localhost:8000");
     setSocket(socket);
 
     socket.on("updateData", (data) => {
-      setTasks(data);
+      setListOfTasks(data);
+    });
+
+    socket.on("addTask", ({ id, name }) => {
+      addTask(id, name);
+    });
+
+    socket.on("removeTask", (taksId) => {
+      removeTask(taksId);
     });
   }, []);
-
-  const handleTaskRemove = (id) => {
-    setTasks((current) => current.filter((task) => task.id !== id));
-  };
-
-  const handleAddNewTask = (e) => {
-    e.preventDefault();
-    setTasks((current) => [...current, { id: shortid(), name: inputValue }]);
-    setInputValue("");
-  };
 
   return (
     <div className="App">
@@ -36,10 +59,10 @@ function App() {
         <h2>Tasks</h2>
 
         <ul className="tasks-section__list" id="tasks-list">
-          {tasks.map(({ name, id }) => {
+          {listOfTasks.map(({ id, name }) => {
             return (
               <li key={id} className="task">
-                {name}{" "}
+                {name}
                 <button
                   className="btn btn--red"
                   onClick={() => handleTaskRemove(id)}
@@ -58,8 +81,8 @@ function App() {
             type="text"
             placeholder="Type your description"
             id="task-name"
-            onChange={(e) => setInputValue(e.target.value)}
-            value={inputValue}
+            onChange={(e) => setTaskName(e.target.value)}
+            value={taskName}
           />
           <button className="btn" type="submit">
             Add
