@@ -63,12 +63,15 @@ function App() {
             return (
               <li key={id} className="task">
                 {name}
-                <button
-                  className="btn btn--red"
-                  onClick={() => handleTaskRemove(id)}
-                >
-                  Remove
-                </button>
+                <div>
+                  <button className="btn btn--green">Edit</button>
+                  <button
+                    className="btn btn--red"
+                    onClick={() => handleTaskRemove(id)}
+                  >
+                    Remove
+                  </button>
+                </div>
               </li>
             );
           })}
