@@ -6,18 +6,12 @@ function App() {
   const [socket, setSocket] = useState({});
   const [listOfTasks, setListOfTasks] = useState([]);
   const [taskName, setTaskName] = useState("");
+  const [editTaskName, setEditTaskName] = useState("");
+  const [clicked, setClicked] = useState(false);
+  const [clickedButtonId, setClickedButtonId] = useState("");
 
   const addTask = (taskId, taskName) => {
     setListOfTasks((current) => [...current, { id: taskId, name: taskName }]);
-  };
-
-  const removeTask = (taskId) => {
-    setListOfTasks((current) => current.filter((task) => task.id !== taskId));
-  };
-
-  const handleTaskRemove = (id) => {
-    removeTask(id);
-    socket.emit("removeTask", id);
   };
 
   const handleAddNewTask = (e) => {
@@ -30,6 +24,52 @@ function App() {
       id: uniqueId,
       name: taskName,
     });
+  };
+
+  const removeTask = (taskId) => {
+    setListOfTasks((current) => current.filter((task) => task.id !== taskId));
+  };
+
+  const handleTaskRemove = (id) => {
+    removeTask(id);
+    socket.emit("removeTask", id);
+  };
+
+  const editTask = (taskId, taskName) => {
+    setListOfTasks((current) =>
+      current.map((task) =>
+        task.id === taskId ? { id: task.id, name: taskName } : task
+      )
+    );
+  };
+
+  const handleEditTask = (id, name) => {
+    const buttonName = document.getElementById(
+      `task--name-edit-${id}`
+    ).innerHTML;
+    const editField = document.getElementById(`edit-field-${id}`);
+
+    if (buttonName === "Edit") {
+      setClicked(!clicked);
+      setClickedButtonId(id);
+      setEditTaskName(name);
+
+      if (clicked) {
+        editField.setAttribute("readonly", "");
+        editField.blur();
+      } else {
+        editField.removeAttribute("readonly");
+        editField.focus();
+      }
+    } else {
+      editTask(id, editTaskName);
+      editField.blur();
+      setClicked(!clicked);
+      socket.emit("editTask", {
+        id: id,
+        name: editTaskName,
+      });
+    }
   };
 
   useEffect(() => {
@@ -47,6 +87,10 @@ function App() {
     socket.on("removeTask", (taksId) => {
       removeTask(taksId);
     });
+
+    socket.on("editTask", ({ id, name }) => {
+      editTask(id, name);
+    });
   }, []);
 
   return (
@@ -62,16 +106,31 @@ function App() {
           {listOfTasks.map(({ id, name }) => {
             return (
               <li key={id} className="task">
-                {name}
-                <div>
-                  <button className="btn btn--green">Edit</button>
-                  <button
-                    className="btn btn--red"
-                    onClick={() => handleTaskRemove(id)}
-                  >
-                    Remove
-                  </button>
-                </div>
+                <input
+                  autoFocus
+                  id={`edit-field-${id}`}
+                  className="task-name"
+                  autoComplete="off"
+                  type="text"
+                  onChange={(e) => setEditTaskName(e.target.value)}
+                  value={
+                    clicked && clickedButtonId === id ? editTaskName : name
+                  }
+                  readOnly
+                />
+                <button
+                  className="btn btn--green"
+                  onClick={() => handleEditTask(id, name)}
+                  id={`task--name-edit-${id}`}
+                >
+                  {id === clickedButtonId && clicked === true ? "Save" : "Edit"}
+                </button>
+                <button
+                  className="btn btn--red"
+                  onClick={() => handleTaskRemove(id)}
+                >
+                  Remove
+                </button>
               </li>
             );
           })}

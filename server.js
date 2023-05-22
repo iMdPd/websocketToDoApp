@@ -37,4 +37,12 @@ io.on("connection", (socket) => {
     tasks.splice(tasks.indexOf(removeTask), 1);
     socket.broadcast.emit("removeTask", removeTask);
   });
+
+  socket.on("editTask", (editTask) => {
+    console.log(`${socket.id} exactly edited task id: ${editTask.id} `);
+    tasks.map((task) =>
+      task.id === editTask.id ? (task.name = editTask.name) : null
+    );
+    socket.broadcast.emit("editTask", editTask);
+  });
 });
